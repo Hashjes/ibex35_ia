@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Asistente Financiero IA{% endblock %}
+
+{% block content %}
+<div class="container-chat d-flex flex-column">
+
+  <!-- Banner fijo arriba -->
+  <div class="bg-primary text-white py-2 px-3 rounded mb-3 shadow-sm">
+    <h5 class="mb-0">💼 Asistente Financiero IA</h5>
+    <small>Estoy aquí para ayudarte con tus inversiones</small>
+  </div>
+
+  <!-- Historial de chat -->
+  <div id="chat-history" class="flex-grow-1 overflow-auto p-3 bg-light rounded">
+    {% if not historial %}
+      <div class="text-center text-muted fst-italic">
+        Bienvenido/a al Asistente Financiero IA. Escribe algo para comenzar...
+      </div>
+    {% endif %}
+    {% for msg in historial %}
+      {# Saltar mensajes de error de perfil/objetivo #}
+      {% if "Define perfil y objetivo primero" not in msg.assistant %}
+        <div class="chat-message user mb-2 p-2 rounded">{{ msg.user }}</div>
+        <div class="chat-message assistant mb-2 p-2 rounded">{{ msg.assistant|safe }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Formulario fijo abajo -->
+  <form id="chat-form" class="chat-form d-flex align-items-end gap-2 mt-3" method="POST">
+    <!-- Selector de modo -->
+    <div class="me-2">
+      <select id="modo" name="modo" class="form-select form-select-sm">
+        <option value="conversacion" {% if modo=="conversacion" %}selected{% endif %}>
+          Conversación
+        </option>
+        <option value="asesor" {% if modo=="asesor" %}selected{% endif %}>
+          Asesor IA
+        </option>
+      </select>
+    </div>
+
+    <!-- Campos de Asesor IA (solo en modo 'asesor') -->
+    {% if modo == 'asesor' %}
+      <div class="d-flex row gx-1 align-items-center me-2">
+        <div class="col-auto">
+          <select id="perfil" name="perfil" class="form-select form-select-sm">
+            {% for p in perfiles %}
+              <option value="{{ p }}" {% if p==perfil %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <input type="text" id="objetivo" name="objetivo"
+                 class="form-control form-control-sm"
+                 value="{{ objetivo }}" placeholder="Objetivo">
+        </div>
+        <div class="col-auto">
+          <input class="form-check-input" type="checkbox" id="extendido" name="extendido"
+                 {% if extendido %}checked{% endif %}>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Campo de texto + botón -->
+    <div class="chat-input position-relative flex-grow-1">
+      <textarea id="texto" name="texto"
+                class="form-control" placeholder="Escribe un mensaje..."></textarea>
+      <button type="submit" class="position-absolute end-0 top-50 translate-middle-y btn p-0" title="Enviar">
+        ➤
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Auto-scroll al fondo
+  const chatHistory = document.getElementById('chat-history');
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+
+  // Enter envía, Shift+Enter nueva línea
+  const textarea = document.getElementById('texto');
+  textarea.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('chat-form').submit();
+    }
+  });
+
+  // Al cambiar modo, reenviamos el formulario
+  document.getElementById('modo').addEventListener('change', () => {
+    document.getElementById('chat-form').submit();
+  });
+</script>
+{% endblock %}

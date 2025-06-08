@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Análisis & Predicción IBEX35{% endblock %}
+{% block content %}
+  <h2 class="mb-4">Análisis y Predicción de Acción</h2>
+
+  <form method="POST" class="row g-3 mb-4 align-items-end">
+    <!-- Selector de empresa -->
+    <div class="col-md-6">
+      <label for="empresa" class="form-label">Empresa:</label>
+      <select id="empresa" name="empresa" class="form-select">
+        {% for emp in empresas %}
+          <option value="{{ emp }}" {% if emp == selected_empresa %}selected{% endif %}>
+            {{ emp }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <!-- Botón de actualización -->
+    <div class="col-md-6 text-end">
+      <button type="submit" class="btn btn-primary">Analizar</button>
+    </div>
+  </form>
+
+  {% if grafico_prediccion %}
+    <div class="mb-5">
+      <h4>Predicción a 1 año</h4>
+      {{ grafico_prediccion|safe }}
+    </div>
+  {% endif %}
+
+  {% if grafico_rsi %}
+    <div class="mb-5">
+      <h4>Análisis Técnico: RSI</h4>
+      {{ grafico_rsi|safe }}
+    </div>
+  {% endif %}
+
+  {% if tabla_fundamental %}
+    <div class="mb-5">
+      <h4>Análisis Fundamental</h4>
+      <table class="table table-striped w-50">
+        <tbody>
+          {% for key, value in tabla_fundamental.items() %}
+            <tr>
+              <th>{{ key }}</th>
+              <td>
+                {{ value }}{% if key == 'Dividend Yield (%)' %} %{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+{% endblock %}

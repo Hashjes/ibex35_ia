@@ -1,0 +1,10 @@
+flask
+yfinance
+plotly
+prophet
+crewai
+pandas
+numpy
+markdown2
+gunicorn
+

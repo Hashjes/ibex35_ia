@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Rentabilidad Dividendaria{% endblock %}
+{% block content %}
+  <h2>Rentabilidad Dividendaria IBEX 35</h2>
+  <table class="table table-striped table-bordered mt-3">
+    <thead class="table-light">
+      <tr>
+        {% for col in columnas %}
+          <th>{{ col }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for fila in tabla %}
+        <tr>
+          {% for col in columnas %}
+            <td>{{ fila[col] if fila[col] is not none else "N/A" }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

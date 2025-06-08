@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Mis Acciones – IBEX35 IA{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">Mis Acciones</h2>
+
+  {% if owned %}
+    <!-- Tabla de posiciones y ganancias -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Tus posiciones</h5>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Cantidad</th>
+              <th>Precio Medio (€)</th>
+              <th>Precio Actual (€)</th>
+              <th>Ganancia / Acción (€)</th>
+              <th>Ganancia Total (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t, datos in owned.items() %}
+              {% set actual = precio_actual(t) or 0 %}
+              <tr>
+                <td>{{ t }}</td>
+                <td>{{ datos.shares }}</td>
+                <td>
+                  {% if datos.cost is not none %}
+                    {{ '%.2f'|format(datos.cost) }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td>{{ '%.2f'|format(actual) }}</td>
+                {% if datos.cost is not none %}
+                  {% set gan_unit = actual - datos.cost %}
+                  {% set gan_total = gan_unit * datos.shares %}
+                  <td>{{ '%.2f'|format(gan_unit) }}</td>
+                  <td>{{ '%.2f'|format(gan_total) }}</td>
+                {% else %}
+                  <td>—</td>
+                  <td>—</td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="alert alert-info mt-3">
+          <strong>Ganancia total cartera:</strong>
+          {{ '%.2f'|format(ganancia_total) }} €
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Formulario de registro / actualización -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Registrar / Actualizar Acciones</h5>
+      <form method="post" class="row g-3">
+        {% for ticker in tickers %}
+          <div class="col-lg-2 col-md-3 col-sm-4">
+            <label for="shares_{{ ticker }}" class="form-label small">{{ ticker }} (unid.)</label>
+            <input type="number" min="0" name="shares_{{ ticker }}" id="shares_{{ ticker }}"
+                   class="form-control form-control-sm"
+                   value="{{ owned[ticker].shares if ticker in owned else 0 }}">
+          </div>
+          <div class="col-lg-2 col-md-3 col-sm-4">
+            <label for="cost_{{ ticker }}" class="form-label small">Coste medio (€)</label>
+            <input type="text" name="cost_{{ ticker }}" id="cost_{{ ticker }}"
+                   class="form-control form-control-sm"
+                   value="{{ owned[ticker].cost if (ticker in owned and owned[ticker].cost is not none) else '' }}"
+                   placeholder="opcional">
+          </div>
+        {% endfor %}
+        <div class="col-12 text-end">
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Enviar Reporte Diario -->
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Enviar Reporte Diario</h5>
+      <form method="post" action="{{ url_for('enviar_reporte') }}" class="row g-3 align-items-end">
+        <div class="col-lg-8 col-md-6">
+          <label for="emails" class="form-label">Correos (separados por comas):</label>
+          <input type="text" class="form-control" id="emails" name="emails"
+                 placeholder="ejemplo@correo.com, otro@correo.es">
+        </div>
+        <div class="col-lg-4 col-md-6 text-end">
+          <button type="submit" class="btn btn-success w-100">Enviar Reporte</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
